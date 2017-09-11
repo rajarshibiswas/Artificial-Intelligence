@@ -82,16 +82,68 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
 
+    """
+
+    # get the start node
+    start_state = problem.getStartState()
+
+    # for DFS will use stack
+    stack = util.Stack()
+    stack.push((start_state, []))
+
+    # to track all the visited vertices
+    visited = set()
+
+    while not stack.isEmpty():
+        (vertex, path) = stack.pop()
+
+        if vertex not in visited:
+            if problem.isGoalState(vertex):
+                #print path
+                return path
+            visited.add(vertex)
+
+            successors = problem.getSuccessors(vertex)
+            for successor in successors:
+                temp_path = list(path)
+                temp_path.append(successor[1])
+                stack.push( (successor[0], temp_path) )
+
+    """ 
     print "Start:", problem.getStartState()
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    """
     "*** YOUR CODE HERE ***"
+    print path
+    """
+
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+
+    start_state = problem.getStartState()
+    # for DFS will use stack
+    queue = util.Queue()
+    queue.push((start_state, []))
+    explored = set()
+
+    while not queue.isEmpty():
+        (state, path) = queue.pop() #do s a shallow search
+
+        if state not in explored:
+            if problem.isGoalState(state):
+                return path
+            explored.add(state)
+
+            successors = problem.getSuccessors(state)
+            for successor in successors:
+                temp_path = list(path)
+                temp_path.append(successor[1])
+                queue.push((successor[0], temp_path))
+
+    # No path found
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
