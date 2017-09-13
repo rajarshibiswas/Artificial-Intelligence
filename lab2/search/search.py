@@ -127,10 +127,40 @@ def breadthFirstSearch(problem):
     # for DFS will use stack
     queue = util.Queue()
     queue.push((start_state, []))
-    explored = set()
+    explored = []
 
     while not queue.isEmpty():
         (state, path) = queue.pop() #do s a shallow search
+
+        if state not in explored:
+            if problem.isGoalState(state):
+                return path
+            explored.append(state)
+
+            successors = problem.getSuccessors(state)
+            for successor in successors:
+                temp_path = list(path)
+                temp_path.append(successor[1])
+                if (successor not in explored):
+                    queue.push((successor[0], temp_path))
+
+    # No path found
+    print "nothing found whats wrong?"
+    util.raiseNotDefined()
+
+def uniformCostSearch(problem):
+    """Search the node of least total cost first."""
+    "*** YOUR CODE HERE ***"
+
+    start_state = problem.getStartState()
+    # for DFS will use stack
+    queue = util.PriorityQueue()
+    # A tuple with start state, path and the priority
+    queue.push((start_state, [], 0), 0)
+    explored = set()
+
+    while not queue.isEmpty():
+        (state, path, priority) = queue.pop() #do s a shallow search
 
         if state not in explored:
             if problem.isGoalState(state):
@@ -141,14 +171,12 @@ def breadthFirstSearch(problem):
             for successor in successors:
                 temp_path = list(path)
                 temp_path.append(successor[1])
-                queue.push((successor[0], temp_path))
+                temp_priority = priority + successor[2]
+                if (successor not in explored):
+                    queue.push((successor[0], temp_path, temp_priority) , temp_priority)
+                # TODO: Check for smaller cost path for grpahs
 
-    # No path found
-    util.raiseNotDefined()
 
-def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -161,6 +189,34 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    """Search the node of least total cost first."""
+    "*** YOUR CODE HERE ***"
+
+    start_state = problem.getStartState()
+    # for DFS will use stack
+    queue = util.PriorityQueue()
+    # A tuple with start state, path and the priority
+    queue.push((start_state, [], 0), 0 + heuristic(start_state, problem))
+    explored = []
+
+    while not queue.isEmpty():
+        (state, path, priority) = queue.pop()  # do s a shallow search
+
+        if state not in explored:
+            if problem.isGoalState(state):
+                return path
+            explored.append(state)
+
+            successors = problem.getSuccessors(state)
+            for successor in successors:
+                temp_path = list(path)
+                temp_path.append(successor[1])
+                temp_priority = priority + successor[2]
+                if (successor not in explored):
+                    queue.push((successor[0], temp_path, temp_priority),
+                        temp_priority + heuristic(successor[0], problem) )
+                    # TODO: Check for smaller cost path for grpahs
+
     util.raiseNotDefined()
 
 
