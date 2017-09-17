@@ -515,6 +515,16 @@ def foodHeuristic(state, problem):
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
 
+    def find_farthest_point(list_of_corners, state):
+        dist = util.manhattanDistance(list_of_corners[0], state)
+        farthest_point = list_of_corners[0]
+        for corner in list_of_corners[1:]:
+            temp_dist = util.manhattanDistance(corner, state)
+            if (temp_dist > dist):
+                dist = temp_dist
+                farthest_point = corner
+        return farthest_point
+
     def findclosePoints(list_of_corners, state):
         dist = util.manhattanDistance(list_of_corners[0], state)
         clossest_point = list_of_corners[0]
@@ -523,7 +533,6 @@ def foodHeuristic(state, problem):
             if (temp_dist < dist):
                 dist = temp_dist
                 clossest_point = corner
-
         return clossest_point
 
     heuristic = 0
@@ -531,8 +540,8 @@ def foodHeuristic(state, problem):
     if (len(food) == 0):
         return heuristic
 
-    NearestFood = findclosePoints(food, position)
-    food.remove(NearestFood)
+    NearestFood = find_farthest_point(food, position)
+   # food.remove(NearestFood)
 
     """
     current_state = position
@@ -542,13 +551,14 @@ def foodHeuristic(state, problem):
         current_state = corner
         food.remove(corner)
     """
+    #distance = search.bfs(problem)
+
+    distance = mazeDistance(position, NearestFood,  problem.startingGameState)
+
     heuristic = util.manhattanDistance(NearestFood, position) + len(food)
 
-    #print "==="
-    #print food
-    #print "==="
-    #if (len)
-
+    if (heuristic > distance):
+       heuristic = util.manhattanDistance(NearestFood, position)
 
     return heuristic
 
