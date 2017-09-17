@@ -386,9 +386,6 @@ def cornersHeuristic(state, problem):
 
     "*** YOUR CODE HERE ***"
 
-    def euclideanDistance((x2,y2), (x1, y1)):
-        return ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5
-
     def findclosePoints(list_of_corners, state):
         dist = util.manhattanDistance(list_of_corners[0], state)
         clossest_point = list_of_corners[0]
@@ -410,9 +407,7 @@ def cornersHeuristic(state, problem):
     if (len(state[1]) == len (corners)):
         return 0 # Return 0 as heuristics
 
-    #cost = []
     searchCorners = []
-
     for corner in corners:
         if corner not in foundCorner:
             searchCorners.append(corner) # This corners still need to be explored
@@ -519,7 +514,43 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    def findclosePoints(list_of_corners, state):
+        dist = util.manhattanDistance(list_of_corners[0], state)
+        clossest_point = list_of_corners[0]
+        for corner in list_of_corners[1:]:
+            temp_dist = util.manhattanDistance(corner, state)
+            if (temp_dist < dist):
+                dist = temp_dist
+                clossest_point = corner
+
+        return clossest_point
+
+    heuristic = 0
+    food = list(foodGrid.asList())
+    if (len(food) == 0):
+        return heuristic
+
+    NearestFood = findclosePoints(food, position)
+    food.remove(NearestFood)
+
+    """
+    current_state = position
+    while (len(food) != 0):
+        corner = findclosePoints(food, current_state)
+        heuristic += util.manhattanDistance(current_state, corner)
+        current_state = corner
+        food.remove(corner)
+    """
+    heuristic = util.manhattanDistance(NearestFood, position) + len(food)
+
+    #print "==="
+    #print food
+    #print "==="
+    #if (len)
+
+
+    return heuristic
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -550,6 +581,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        return search.bfs(problem)
         util.raiseNotDefined()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -586,6 +618,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
+        return self.food[x][y]
         util.raiseNotDefined()
 
 def mazeDistance(point1, point2, gameState):
