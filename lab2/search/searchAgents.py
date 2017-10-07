@@ -289,7 +289,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        # State = ((x,y), [List of coreners already explored])
+        # State = ((x,y), [List of corners already explored])
         if self.startingPosition in self.corners:
             self.state = (self.startingPosition, [self.startingPosition])
         else:
@@ -310,7 +310,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        return ( len(state[1]) == len (self.corners))
+        return ( len (self.corners) == len(state[1]) )
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -328,7 +328,7 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-           # print "finding successor for ", state
+            # print "finding successor for ", state
             (x,y) = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
@@ -336,13 +336,13 @@ class CornersProblem(search.SearchProblem):
 
             "*** YOUR CODE HERE ***"
             if not self.walls[nextx][nexty]:
-                foundCorners = list (state[1])
+                found_corners = list (state[1])
                 if (nextx, nexty) in self.corners:
-                    if (nextx, nexty) not in foundCorners:
-                        foundCorners.append((nextx, nexty))
+                    if (nextx, nexty) not in found_corners:
+                        found_corners.append((nextx, nexty))
 
                 # Construct the state
-                succesor_state = ((nextx, nexty), foundCorners)
+                succesor_state = ((nextx, nexty), found_corners)
                 #print len (state[1])
                 #print succesor_state
                 # state, direction, cost
@@ -367,7 +367,6 @@ class CornersProblem(search.SearchProblem):
 
 
 
-
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -386,7 +385,7 @@ def cornersHeuristic(state, problem):
 
     "*** YOUR CODE HERE ***"
 
-    def findclosePoints(list_of_corners, state):
+    def find_close_point(list_of_corners, state):
         dist = util.manhattanDistance(list_of_corners[0], state)
         clossest_point = list_of_corners[0]
         for corner in list_of_corners[1:]:
@@ -401,24 +400,23 @@ def cornersHeuristic(state, problem):
 
     #print walls
     current_state = state[0]
-    foundCorner = state[1]
+    found_corner = state[1]
 
     # Goal node case
     if (len(state[1]) == len (corners)):
-        return 0 # Return 0 as heuristics
+        return 0 # Return 0 as heuristic
 
-    searchCorners = []
+    search_corners = []
     for corner in corners:
-        if corner not in foundCorner:
-            searchCorners.append(corner) # This corners still need to be explored
+        if corner not in found_corner:
+            search_corners.append(corner) # This corners still need to be explored
 
-    while (len(searchCorners) != 0):
-        corner = findclosePoints(searchCorners, current_state)
+    while (len(search_corners) != 0):
+        corner = find_close_point(search_corners, current_state)
         heuristic += util.manhattanDistance(current_state, corner)
         current_state = corner
-        searchCorners.remove(corner)
+        search_corners.remove(corner)
 
-    #heuristic = max(cost)
     #print heuristic
     return heuristic
 
@@ -525,40 +523,18 @@ def foodHeuristic(state, problem):
                 farthest_point = corner
         return farthest_point
 
-    def findclosePoints(list_of_corners, state):
-        dist = util.manhattanDistance(list_of_corners[0], state)
-        clossest_point = list_of_corners[0]
-        for corner in list_of_corners[1:]:
-            temp_dist = util.manhattanDistance(corner, state)
-            if (temp_dist < dist):
-                dist = temp_dist
-                clossest_point = corner
-        return clossest_point
-
     heuristic = 0
     food = list(foodGrid.asList())
     if (len(food) == 0):
         return heuristic
 
-    NearestFood = find_farthest_point(food, position)
-   # food.remove(NearestFood)
+    next_food = find_farthest_point(food, position)
+    food.remove(next_food)
 
-    """
-    current_state = position
-    while (len(food) != 0):
-        corner = findclosePoints(food, current_state)
-        heuristic += util.manhattanDistance(current_state, corner)
-        current_state = corner
-        food.remove(corner)
-    """
-    #distance = search.bfs(problem)
-
-    distance = mazeDistance(position, NearestFood,  problem.startingGameState)
-
-    heuristic = util.manhattanDistance(NearestFood, position) + len(food)
-
+    distance = mazeDistance(position, next_food,  problem.startingGameState)
+    heuristic = util.manhattanDistance(next_food, position) + len(food)
     if (heuristic > distance):
-       heuristic = util.manhattanDistance(NearestFood, position)
+       heuristic = heuristic - len(food)
 
     return heuristic
 

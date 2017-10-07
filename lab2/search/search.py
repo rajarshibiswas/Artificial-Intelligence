@@ -84,6 +84,14 @@ def depthFirstSearch(problem):
 
     """
 
+    """ 
+       print "Start:", problem.getStartState()
+       print "Is the start a goal?", problem.isGoalState(problem.getStartState())
+       print "Start's successors:", problem.getSuccessors(problem.getStartState())
+       "*** YOUR CODE HERE ***"
+       print path
+    """
+
     # get the start node
     start_state = problem.getStartState()
 
@@ -92,30 +100,23 @@ def depthFirstSearch(problem):
     stack.push((start_state, []))
 
     # to track all the visited vertices
-    visited = set()
+    explored = []
 
     while not stack.isEmpty():
-        (vertex, path) = stack.pop()
+        (state, path) = stack.pop()
 
-        if vertex not in visited:
-            if problem.isGoalState(vertex):
+        if state not in explored:
+            if problem.isGoalState(state):
                 #print path
                 return path
-            visited.add(vertex)
+            explored.append(state)
 
-            successors = problem.getSuccessors(vertex)
+            successors = problem.getSuccessors(state)
             for successor in successors:
                 temp_path = list(path)
                 temp_path.append(successor[1])
                 stack.push( (successor[0], temp_path) )
 
-    """ 
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    "*** YOUR CODE HERE ***"
-    print path
-    """
 
     util.raiseNotDefined()
 
@@ -124,13 +125,13 @@ def breadthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
 
     start_state = problem.getStartState()
-    # for DFS will use stack
+    # for BFS will use Queue
     queue = util.Queue()
     queue.push((start_state, []))
     explored = []
 
     while not queue.isEmpty():
-        (state, path) = queue.pop() #do s a shallow search
+        (state, path) = queue.pop()
 
         if state not in explored:
             if problem.isGoalState(state):
@@ -145,7 +146,7 @@ def breadthFirstSearch(problem):
                     queue.push((successor[0], temp_path))
 
     # No path found
-    print "nothing found whats wrong?"
+    #print "nothing found whats wrong?"
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
@@ -153,11 +154,10 @@ def uniformCostSearch(problem):
     "*** YOUR CODE HERE ***"
 
     start_state = problem.getStartState()
-    # for DFS will use stack
     queue = util.PriorityQueue()
     # A tuple with start state, path and the priority
     queue.push((start_state, [], 0), 0)
-    explored = set()
+    explored = []
 
     while not queue.isEmpty():
         (state, path, priority) = queue.pop() #do s a shallow search
@@ -165,7 +165,7 @@ def uniformCostSearch(problem):
         if state not in explored:
             if problem.isGoalState(state):
                 return path
-            explored.add(state)
+            explored.append(state)
 
             successors = problem.getSuccessors(state)
             for successor in successors:
@@ -174,8 +174,6 @@ def uniformCostSearch(problem):
                 temp_priority = priority + successor[2]
                 if (successor not in explored):
                     queue.push((successor[0], temp_path, temp_priority) , temp_priority)
-                # TODO: Check for smaller cost path for grpahs
-
 
     util.raiseNotDefined()
 
@@ -215,10 +213,8 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 if (successor not in explored):
                     queue.push((successor[0], temp_path, temp_priority),
                         temp_priority + heuristic(successor[0], problem) )
-                    # TODO: Check for smaller cost path for grpahs
 
     util.raiseNotDefined()
-
 
 # Abbreviations
 bfs = breadthFirstSearch
