@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -149,16 +149,22 @@ class ExactInference(InferenceModule):
         pacmanPosition = gameState.getPacmanPosition()
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
 
         # Replace this code with a correct observation update
         # Be sure to handle the "jail" edge case where the ghost is eaten
         # and noisyDistance is None
         allPossible = util.Counter()
-        for p in self.legalPositions:
-            trueDistance = util.manhattanDistance(p, pacmanPosition)
-            if emissionModel[trueDistance] > 0:
-                allPossible[p] = 1.0
+
+        # Ghost is eaten so noisyDistance is None
+        if noisyDistance is None:
+            #allPossible = util.Counter()
+            allPossible[self.getJailPosition()] = 1
+        else:
+            for p in self.legalPositions:
+                trueDistance = util.manhattanDistance(p, pacmanPosition)
+                if emissionModel[trueDistance] > 0:
+                    allPossible[p] = self.beliefs[p] * emissionModel[trueDistance]
 
         "*** END YOUR CODE HERE ***"
 
@@ -219,7 +225,17 @@ class ExactInference(InferenceModule):
         positions after a time update from a particular position.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        updatedBelief = util.Counter()
+        for oldPos in self.legalPositions:
+            newPosDist = self.getPositionDistribution(
+                         self.setGhostPosition(gameState,
+                                               oldPos))
+            for newPos, prob in newPosDist.items():
+                updatedBelief[newPos] += prob * self.beliefs[oldPos]
+
+        updatedBelief.normalize()
+        self.beliefs = updatedBelief
 
     def getBeliefDistribution(self):
         return self.beliefs
@@ -254,6 +270,14 @@ class ParticleFilter(InferenceModule):
         weight with each position) is incorrect and may produce errors.
         """
         "*** YOUR CODE HERE ***"
+        self.particles = []
+        numParticles = 0
+        while numParticles < self.numParticles:
+            for pos in self.legalPositions:
+                if numParticles < self.numParticles:
+                    self.particles.append(pos)
+                    numParticles += 1
+
 
     def observe(self, observation, gameState):
         """
@@ -286,7 +310,29 @@ class ParticleFilter(InferenceModule):
         emissionModel = busters.getObservationDistribution(noisyDistance)
         pacmanPosition = gameState.getPacmanPosition()
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+
+        if noisyDistance == None:
+            self.particles = []
+            for i in range(self.numParticles):
+                self.particles.append(self.getJailPosition())
+        else:
+            updatedBelief = util.Counter()
+            belief = self.getBeliefDistribution()
+
+            for pos in self.legalPositions:
+                dist = util.manhattanDistance(pacmanPosition,
+                                              pos)
+                if emissionModel[dist] > 0:
+                    updatedBelief[pos] =  emissionModel[dist] * belief[pos]
+
+            if updatedBelief.totalCount() == 0:
+                self.initializeUniformly(gameState)
+            else:
+                self.particles = []
+                for _ in range(0, self.numParticles):
+                    self.particles.append(util.sample(updatedBelief))
+
 
     def elapseTime(self, gameState):
         """
@@ -303,7 +349,17 @@ class ParticleFilter(InferenceModule):
         a belief distribution.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+
+        updatedParticle = []
+        newPosDist = util.Counter()
+        for oldPos in self.particles:
+            newPosDist = self.getPositionDistribution(
+                         self.setGhostPosition(gameState, oldPos))
+            updatedParticle.append(util.sample(newPosDist))
+
+        self.particles = updatedParticle
+
 
     def getBeliefDistribution(self):
         """
@@ -313,7 +369,12 @@ class ParticleFilter(InferenceModule):
         Counter object)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        beliefDist = util.Counter()
+        for particle in self.particles:
+            beliefDist[particle] += 1
+        beliefDist.normalize()
+        return beliefDist
 
 class MarginalInference(InferenceModule):
     """
