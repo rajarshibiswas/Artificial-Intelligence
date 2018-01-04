@@ -316,22 +316,20 @@ class ParticleFilter(InferenceModule):
             for _ in range(self.numParticles):
                 self.particles.append(self.getJailPosition())
         else:
-            updatedBelief = util.Counter()
-            belief = self.getBeliefDistribution()
+            updatedWeight = util.Counter()
 
-            for pos in self.legalPositions:
+            for pos in self.particles:
                 dist = util.manhattanDistance(pacmanPosition, pos)
-
                 if emissionModel[dist] > 0:
-                    updatedBelief[pos] = float(belief[pos]) * float(emissionModel[dist])
+                    updatedWeight[pos] +=  emissionModel[dist] #float(belief[pos]) * float(emissionModel[dist])
 
-            if updatedBelief.totalCount() == 0:
+            if updatedWeight.totalCount() == 0:
                 self.initializeUniformly(gameState)
             else:
-                updatedBelief.normalize()
+                updatedWeight.normalize()
                 self.particles = []
                 for _ in range(self.numParticles):
-                    self.particles.append(util.sample(updatedBelief))
+                    self.particles.append(util.sample(updatedWeight))
        # util.raiseNotDefined()
 
 
@@ -506,7 +504,7 @@ class JointParticleFilter:
         "*** YOUR CODE HERE ***"
 
         diedGhost = []
-        updatedBelief = util.Counter()
+        updatedWeight = util.Counter()
 
         for i in range(self.numGhosts):
             if noisyDistances[i] == None:
@@ -522,14 +520,14 @@ class JointParticleFilter:
                     dist = util.manhattanDistance(pacmanPosition, particle[i])
                     temp *= (emissionModels[i])[dist]
 
-            updatedBelief[particle] += temp
+            updatedWeight[particle] += temp
 
-        if updatedBelief.totalCount() == 0:
+        if updatedWeight.totalCount() == 0:
             self.initializeParticles()
         else:
-            updatedBelief.normalize()
+            updatedWeight.normalize()
             for pos in range(len(self.particles)):
-                self.particles[pos] = util.sample(updatedBelief)
+                self.particles[pos] = util.sample(updatedWeight)
 
 
 
