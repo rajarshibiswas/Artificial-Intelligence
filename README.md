@@ -8,7 +8,9 @@ Pac-MAN projects for the OSU CSE 5522 (Survey of Artificial Intelligence II: Adv
 The Pac-Man projects were originally developed for UC Berkeley's introductory artificial intelligence course, CS 188. They apply an array of AI techniques to playing Pac-Man. However, these projects don't focus on building AI for video games. Instead, they teach foundational AI concepts, such as informed state-space search, probabilistic inference, and reinforcement learning. These concepts underly real-world application areas such as natural language processing, computer vision, and robotics
 
 [Python Basic](./python-basic)
+
 This short UNIX/Python tutorial introduces students to the Python programming language and the UNIX environment.
+
 Project Description: (http://ai.berkeley.edu/tutorial.html)
 
 [Search](./search)
